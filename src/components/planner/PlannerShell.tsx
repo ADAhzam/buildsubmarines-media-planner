@@ -15,6 +15,7 @@ import { PlanningControls } from "./PlanningControls";
 import { SummaryBar } from "@/components/ui/SummaryBar";
 import { MediaPlanTable } from "@/components/ui/MediaPlanTable";
 import { InsightCards } from "@/components/ui/InsightCards";
+import { PlanGeneratingOverlay } from "@/components/ui/PlanGeneratingOverlay";
 
 interface PlannerShellProps {
   reference: ReferenceData;
@@ -39,6 +40,7 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
   // ── Results state ────────────────────────────────────────────────────────────
   const [result, setResult] = useState<PlanResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit =
@@ -217,6 +219,7 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
   // ── Submit ───────────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
     setLoading(true);
+    setShowOverlay(true);
     setError(null);
 
     const inputs: PlannerInputs = {
@@ -228,6 +231,10 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
       durationDays,
       strategy,
     };
+
+    // Enforce a minimum overlay display time so fast responses don't flicker
+    const MIN_OVERLAY_MS = 5000;
+    const start = Date.now();
 
     try {
       const res = await fetch("/api/plan", {
@@ -244,7 +251,13 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
     } catch {
       setError("Network error. Please try again.");
     } finally {
+      const elapsed = Date.now() - start;
+      const remaining = MIN_OVERLAY_MS - elapsed;
+      if (remaining > 0) {
+        await new Promise((r) => setTimeout(r, remaining));
+      }
       setLoading(false);
+      setShowOverlay(false);
     }
   }, [
     selectedJobFunctions,
@@ -258,6 +271,7 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
+      <PlanGeneratingOverlay visible={showOverlay} />
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <header className="flex-shrink-0 bg-[var(--surface)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -345,18 +359,6 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
             {error && (
               <div className="rounded-xl bg-[var(--red-bg)] border border-red-200 px-4 py-3 text-sm text-[var(--red)]">
                 {error}
-              </div>
-            )}
-
-            {/* Loading */}
-            {loading && (
-              <div className="flex items-center justify-center h-64">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-8 h-8 border-2 border-[var(--border-strong)] border-t-[var(--accent)] rounded-full animate-spin" />
-                  <p className="text-sm text-[var(--text-muted)]">
-                    Computing media plan…
-                  </p>
-                </div>
               </div>
             )}
 
