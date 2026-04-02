@@ -1,23 +1,40 @@
 import { PlannerShell } from "@/components/planner/PlannerShell";
 import { PRESETS } from "@/lib/presets";
-import type { ReferenceData } from "@/lib/types";
+import { getJobFunctions, getSpecialties } from "@/lib/db/media-plan.db";
+import { getAllInsightStates } from "@/lib/db/insight-engine.db";
+import type {
+  ReferenceData,
+  JobFunctionOption,
+  SpecialtyOption,
+  StateOption,
+} from "@/lib/types";
 
-async function getReferenceData(): Promise<ReferenceData> {
-  // In development, fetch from localhost; on Vercel, use the internal URL.
-  // Using absolute URL is required when calling own route handlers from a Server Component.
-  const base =
-    process.env.NEXT_PUBLIC_BASE_URL ??
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
+function getReferenceData(): ReferenceData {
+  const jobFunctions: JobFunctionOption[] = getJobFunctions().map((r) => ({
+    value: r.job_function,
+    label: r.front_end_group,
+    displayOrder: r.display_order,
+  }));
 
-  const res = await fetch(`${base}/api/reference`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Failed to load reference data");
-  return res.json() as Promise<ReferenceData>;
+  const specialties: SpecialtyOption[] = getSpecialties().map((r) => ({
+    value: r.specialty,
+    label: r.specialty,
+    jobFunction: r.job_function,
+    difficultyTier: r.difficulty_tier,
+  }));
+
+  const states: StateOption[] = getAllInsightStates().map((r) => ({
+    value: r.state_code,
+    label: r.state_name,
+    hotspotCluster: r.hotspot_cluster,
+    hotspotRank: r.hotspot_rank,
+  }));
+
+  return { jobFunctions, specialties, states };
 }
 
-export default async function PlannerPage() {
-  const reference = await getReferenceData();
+export default function PlannerPage() {
+  const reference = getReferenceData();
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[var(--bg)]">
