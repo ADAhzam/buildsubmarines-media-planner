@@ -128,21 +128,20 @@ export function getTopPublishersForSpecialties(
 ): string[] {
   if (specialties.length === 0) return [];
   const placeholders = specialties.map(() => "?").join(",");
+  // GROUP BY publisher so each publisher appears once, ordered by its best
+  // (lowest) rank across all selected specialties. This ensures niche publishers
+  // that are rank 2–3 for their specific specialty surface correctly instead of
+  // being buried behind rank-1 entries from unrelated specialties.
   const rows = getDb()
     .prepare(
-      `SELECT DISTINCT publisher FROM specialty_publishers
+      `SELECT publisher, MIN(rank) AS best_rank
+       FROM specialty_publishers
        WHERE specialty IN (${placeholders})
-       ORDER BY rank`
+       GROUP BY publisher
+       ORDER BY best_rank`
     )
-    .all(...specialties) as { publisher: string }[];
-  // Deduplicate while preserving order
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const row of rows) {
-    if (!seen.has(row.publisher)) {
-      seen.add(row.publisher);
-      result.push(row.publisher);
-    }
-  }
-  return result.slice(0, 6);
+    .all(...specialties) as { publisher: string; best_rank: number }[];
+  // Scale the cap with portfolio breadth so broader selections surface more variety
+  const cap = specialties.length <= 2 ? 6 : specialties.length <= 6 ? 8 : 12;
+  return rows.slice(0, cap).map((r) => r.publisher);
 }
