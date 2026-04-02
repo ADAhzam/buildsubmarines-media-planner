@@ -27,11 +27,40 @@ function toggle(arr: string[], val: string): string[] {
   return arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val];
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionHeader({
+  children,
+  onSelectAll,
+  onClear,
+}: {
+  children: React.ReactNode;
+  onSelectAll: () => void;
+  onClear: () => void;
+}) {
   return (
-    <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-2">
-      {children}
-    </p>
+    <div className="flex items-center justify-between mb-2">
+      <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+        {children}
+      </p>
+      <div className="flex items-center gap-0.5">
+        <button
+          type="button"
+          onClick={onSelectAll}
+          className="text-[10px] font-medium text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors px-1.5 py-0.5 rounded"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          onClick={onClear}
+          title="Clear selection"
+          className="flex items-center justify-center w-5 h-5 rounded text-[var(--text-muted)] hover:text-[var(--red)] hover:bg-[var(--red-bg)] transition-colors"
+        >
+          <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -100,7 +129,12 @@ export function FilterPanel({
     <div className="flex flex-col gap-5">
       {/* ── Job Functions ─────────────────────────────────── */}
       <section>
-        <SectionLabel>Job Functions</SectionLabel>
+        <SectionHeader
+          onSelectAll={() => onJobFunctionsChange(jobFunctions.map((jf) => jf.value))}
+          onClear={() => onJobFunctionsChange([])}
+        >
+          Job Functions
+        </SectionHeader>
         <div className="space-y-0.5">
           {jobFunctions.map((jf) => (
             <CheckItem
@@ -119,10 +153,13 @@ export function FilterPanel({
 
       {/* ── Specialties ───────────────────────────────────── */}
       <section>
-        <SectionLabel>
+        <SectionHeader
+          onSelectAll={() => onSpecialtiesChange(visibleSpecialties.map((sp) => sp.value))}
+          onClear={() => onSpecialtiesChange([])}
+        >
           Specialties
           {selectedJobFunctions.length > 0 && ` (${visibleSpecialties.length})`}
-        </SectionLabel>
+        </SectionHeader>
         {selectedJobFunctions.length === 0 && (
           <p className="text-xs text-[var(--text-muted)] mb-2">
             Select job functions above to filter.
@@ -147,7 +184,12 @@ export function FilterPanel({
 
       {/* ── Hotspots / States ─────────────────────────────── */}
       <section>
-        <SectionLabel>Hotspots / States</SectionLabel>
+        <SectionHeader
+          onSelectAll={() => onStatesChange(states.map((s) => s.value))}
+          onClear={() => onStatesChange([])}
+        >
+          Hotspots / States
+        </SectionHeader>
         <div className="space-y-4">
           {hotspotClusters.map((cluster) => {
             const clusterStates = clusterMap.get(cluster);
