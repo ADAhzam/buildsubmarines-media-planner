@@ -64,7 +64,9 @@ export function SummaryBar({ summary }: SummaryBarProps) {
             {summary.strategy}
           </p>
           <p className="text-xs text-[var(--text-muted)] mt-0.5">
-            {summary.durationDays}-day flight
+            {summary.strategy === "aggressive"
+              ? "Spending as fast as possible"
+              : `${summary.durationDays}-day campaign`}
           </p>
         </Card>
       </div>
