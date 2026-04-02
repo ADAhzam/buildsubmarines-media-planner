@@ -173,6 +173,47 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
     setError(null);
   }
 
+  // ── Dynamic presets (computed from reference at click-time) ───────────────────
+  function applyComputedSelections(
+    specialties: string[],
+    budget: number,
+    durationDays: DurationDays,
+    strategy: Strategy
+  ) {
+    const jobFunctions = Array.from(
+      new Set(
+        specialties.flatMap(
+          (sp) => reference.specialties.find((s) => s.value === sp)?.jobFunction ?? []
+        )
+      )
+    );
+    const states = Array.from(
+      new Set(specialties.flatMap((sp) => reference.specialtyStates[sp] ?? []))
+    );
+    manuallyDeselectedStates.current.clear();
+    setSelectedJobFunctions(jobFunctions);
+    setSelectedSpecialties(specialties);
+    setSelectedStates(states);
+    setBudget(budget);
+    setBudgetMode("recommended");
+    setDurationDays(durationDays);
+    setStrategy(strategy);
+    setResult(null);
+    setError(null);
+  }
+
+  function loadHardToFillPreset() {
+    const specialties = reference.specialties
+      .filter((s) => s.difficultyTier === "High" || s.difficultyTier === "Very High")
+      .map((s) => s.value);
+    applyComputedSelections(specialties, 150000, 30, "balanced");
+  }
+
+  function loadAllJobsPreset() {
+    const specialties = reference.specialties.map((s) => s.value);
+    applyComputedSelections(specialties, 500000, 30, "balanced");
+  }
+
   // ── Submit ───────────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
     setLoading(true);
@@ -235,6 +276,20 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
           <span className="text-xs text-[var(--text-muted)] mr-1 hidden sm:inline">
             Presets:
           </span>
+          <button
+            onClick={loadHardToFillPreset}
+            title="Focused on high-difficulty specialties with tighter talent supply"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-colors"
+          >
+            Hard-to-Fill Roles
+          </button>
+          <button
+            onClick={loadAllJobsPreset}
+            title="Covers the full job portfolio across all categories and locations"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-colors"
+          >
+            All Jobs Portfolio
+          </button>
           {presets.map((preset) => (
             <button
               key={preset.id}
