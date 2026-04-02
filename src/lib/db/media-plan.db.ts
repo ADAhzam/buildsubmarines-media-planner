@@ -106,6 +106,23 @@ export function getPlanningCurves(
     ) as DbPlanningCurve[];
 }
 
+// Returns every specialty → state pair that exists in planning_curves.
+// Used client-side to drive cascading state auto-selection.
+export function getSpecialtyStateMapping(): Record<string, string[]> {
+  const rows = getDb()
+    .prepare(
+      "SELECT DISTINCT specialty, state FROM planning_curves ORDER BY specialty, state"
+    )
+    .all() as { specialty: string; state: string }[];
+
+  const mapping: Record<string, string[]> = {};
+  for (const row of rows) {
+    if (!mapping[row.specialty]) mapping[row.specialty] = [];
+    mapping[row.specialty].push(row.state);
+  }
+  return mapping;
+}
+
 export function getTopPublishersForSpecialties(
   specialties: string[]
 ): string[] {

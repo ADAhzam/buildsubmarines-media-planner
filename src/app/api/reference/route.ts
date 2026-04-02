@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getJobFunctions, getSpecialties } from "@/lib/db/media-plan.db";
+import { getJobFunctions, getSpecialties, getSpecialtyStateMapping } from "@/lib/db/media-plan.db";
 import { getAllInsightStates } from "@/lib/db/insight-engine.db";
 import type {
   JobFunctionOption,
@@ -35,6 +35,7 @@ export async function GET(_req: NextRequest): Promise<Response> {
     hotspotRank: r.hotspot_rank,
   }));
 
-  const data: ReferenceData = { jobFunctions, specialties, states };
+  const specialtyStates = getSpecialtyStateMapping();
+  const data: ReferenceData = { jobFunctions, specialties, states, specialtyStates };
   return Response.json(data);
 }

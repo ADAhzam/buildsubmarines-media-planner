@@ -1,6 +1,6 @@
 import { PlannerShell } from "@/components/planner/PlannerShell";
 import { PRESETS } from "@/lib/presets";
-import { getJobFunctions, getSpecialties } from "@/lib/db/media-plan.db";
+import { getJobFunctions, getSpecialties, getSpecialtyStateMapping } from "@/lib/db/media-plan.db";
 import { getAllInsightStates } from "@/lib/db/insight-engine.db";
 import type {
   ReferenceData,
@@ -30,7 +30,9 @@ function getReferenceData(): ReferenceData {
     hotspotRank: r.hotspot_rank,
   }));
 
-  return { jobFunctions, specialties, states };
+  const specialtyStates = getSpecialtyStateMapping();
+
+  return { jobFunctions, specialties, states, specialtyStates };
 }
 
 export default function PlannerPage() {

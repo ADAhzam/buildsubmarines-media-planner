@@ -159,6 +159,8 @@ export interface ReferenceData {
   jobFunctions: JobFunctionOption[];
   specialties: SpecialtyOption[];
   states: StateOption[];
+  // Maps specialty value → array of state codes that have planning_curves data
+  specialtyStates: Record<string, string[]>;
 }
 
 // ─── Plan Output Types ───────────────────────────────────────────────────────

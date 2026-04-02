@@ -4,9 +4,6 @@ import type {
   JobFunctionOption,
   SpecialtyOption,
   StateOption,
-  Strategy,
-  DurationDays,
-  BudgetMode,
 } from "@/lib/types";
 
 interface FilterPanelProps {
@@ -19,21 +16,11 @@ interface FilterPanelProps {
   selectedJobFunctions: string[];
   selectedSpecialties: string[];
   selectedStates: string[];
-  budget: number;
-  budgetMode: BudgetMode;
-  durationDays: DurationDays;
-  strategy: Strategy;
-  loading: boolean;
 
   // Callbacks
   onJobFunctionsChange: (values: string[]) => void;
   onSpecialtiesChange: (values: string[]) => void;
   onStatesChange: (values: string[]) => void;
-  onBudgetChange: (value: number) => void;
-  onBudgetModeChange: (mode: BudgetMode) => void;
-  onDurationChange: (days: DurationDays) => void;
-  onStrategyChange: (strategy: Strategy) => void;
-  onSubmit: () => void;
 }
 
 function toggle(arr: string[], val: string): string[] {
@@ -77,7 +64,14 @@ function CheckItem({
   );
 }
 
-const DURATION_OPTIONS: DurationDays[] = [15, 30, 60, 90];
+const hotspotClusters = [
+  "Pacific Defense Corridor",
+  "Atlantic Naval Corridor",
+  "Southern Manufacturing Belt",
+  "Midwest Industrial Belt",
+  "Northeast Advanced Manufacturing",
+  "Other Regions",
+];
 
 export function FilterPanel({
   jobFunctions,
@@ -86,51 +80,24 @@ export function FilterPanel({
   selectedJobFunctions,
   selectedSpecialties,
   selectedStates,
-  budget,
-  durationDays,
-  strategy,
-  loading,
   onJobFunctionsChange,
   onSpecialtiesChange,
   onStatesChange,
-  onBudgetChange,
-  onDurationChange,
-  onStrategyChange,
-  onSubmit,
 }: FilterPanelProps) {
-  // Filter specialties by selected job functions
   const visibleSpecialties =
     selectedJobFunctions.length > 0
-      ? allSpecialties.filter((s) =>
-          selectedJobFunctions.includes(s.jobFunction)
-        )
+      ? allSpecialties.filter((s) => selectedJobFunctions.includes(s.jobFunction))
       : allSpecialties;
 
-  // Group states by hotspot cluster for display
   const clusterMap = new Map<string, StateOption[]>();
   for (const s of states) {
     const arr = clusterMap.get(s.hotspotCluster) ?? [];
     arr.push(s);
     clusterMap.set(s.hotspotCluster, arr);
   }
-  // Sort clusters so hotspot ones come first
-  const hotspotClusters = [
-    "Pacific Defense Corridor",
-    "Atlantic Naval Corridor",
-    "Southern Manufacturing Belt",
-    "Midwest Industrial Belt",
-    "Northeast Advanced Manufacturing",
-    "Other Regions",
-  ];
-
-  const canSubmit =
-    !loading &&
-    selectedSpecialties.length > 0 &&
-    selectedStates.length > 0 &&
-    budget >= 10000;
 
   return (
-    <aside className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5">
       {/* ── Job Functions ─────────────────────────────────── */}
       <section>
         <SectionLabel>Job Functions</SectionLabel>
@@ -154,8 +121,7 @@ export function FilterPanel({
       <section>
         <SectionLabel>
           Specialties
-          {selectedJobFunctions.length > 0 &&
-            ` (${visibleSpecialties.length})`}
+          {selectedJobFunctions.length > 0 && ` (${visibleSpecialties.length})`}
         </SectionLabel>
         {selectedJobFunctions.length === 0 && (
           <p className="text-xs text-[var(--text-muted)] mb-2">
@@ -208,97 +174,6 @@ export function FilterPanel({
           })}
         </div>
       </section>
-
-      <div className="border-t border-[var(--border)]" />
-
-      {/* ── Budget ────────────────────────────────────────── */}
-      <section>
-        <SectionLabel>Budget</SectionLabel>
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm text-[var(--text-secondary)]">$</span>
-          <input
-            type="number"
-            min={10000}
-            max={1000000}
-            step={5000}
-            value={budget}
-            onChange={(e) => onBudgetChange(Number(e.target.value))}
-            className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
-        <input
-          type="range"
-          min={10000}
-          max={1000000}
-          step={5000}
-          value={budget}
-          onChange={(e) => onBudgetChange(Number(e.target.value))}
-          className="w-full accent-[var(--accent)]"
-        />
-        <div className="flex justify-between text-xs text-[var(--text-muted)] mt-1">
-          <span>$10k</span>
-          <span>$1M</span>
-        </div>
-      </section>
-
-      <div className="border-t border-[var(--border)]" />
-
-      {/* ── Duration ──────────────────────────────────────── */}
-      <section>
-        <SectionLabel>Flight Duration</SectionLabel>
-        <div className="grid grid-cols-4 gap-1.5">
-          {DURATION_OPTIONS.map((d) => (
-            <button
-              key={d}
-              onClick={() => onDurationChange(d)}
-              className={`py-1.5 rounded-lg text-xs font-medium border transition-colors ${
-                durationDays === d
-                  ? "bg-[var(--accent)] text-white border-[var(--accent)]"
-                  : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--border-strong)]"
-              }`}
-            >
-              {d}d
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <div className="border-t border-[var(--border)]" />
-
-      {/* ── Delivery Strategy ─────────────────────────────── */}
-      <section>
-        <SectionLabel>Delivery Strategy</SectionLabel>
-        <div className="grid grid-cols-2 gap-1.5">
-          {(["balanced", "aggressive"] as Strategy[]).map((s) => (
-            <button
-              key={s}
-              onClick={() => onStrategyChange(s)}
-              className={`py-1.5 rounded-lg text-xs font-medium border capitalize transition-colors ${
-                strategy === s
-                  ? "bg-[var(--accent)] text-white border-[var(--accent)]"
-                  : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border)] hover:border-[var(--border-strong)]"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Generate button ───────────────────────────────── */}
-      <button
-        onClick={onSubmit}
-        disabled={!canSubmit}
-        className="mt-1 w-full py-2.5 rounded-xl bg-[var(--accent)] text-white text-sm font-semibold tracking-wide disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--accent-hover)] transition-colors"
-      >
-        {loading ? "Generating…" : "Generate Media Plan"}
-      </button>
-
-      {selectedSpecialties.length === 0 && (
-        <p className="text-xs text-[var(--text-muted)] text-center -mt-3">
-          Select at least one specialty and state.
-        </p>
-      )}
-    </aside>
+    </div>
   );
 }
