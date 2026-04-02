@@ -107,7 +107,7 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
   ]);
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 min-h-0">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <header className="bg-[var(--surface)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <div>

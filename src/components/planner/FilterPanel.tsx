@@ -162,7 +162,7 @@ export function FilterPanel({
             Select job functions above to filter.
           </p>
         )}
-        <div className="space-y-0.5 max-h-52 overflow-y-auto pr-1">
+        <div className="space-y-0.5">
           {visibleSpecialties.map((sp) => (
             <CheckItem
               key={sp.value}
@@ -182,7 +182,7 @@ export function FilterPanel({
       {/* ── Hotspots / States ─────────────────────────────── */}
       <section>
         <SectionLabel>Hotspots / States</SectionLabel>
-        <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
+        <div className="space-y-4">
           {hotspotClusters.map((cluster) => {
             const clusterStates = clusterMap.get(cluster);
             if (!clusterStates || clusterStates.length === 0) return null;
