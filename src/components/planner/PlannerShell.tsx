@@ -278,8 +278,8 @@ export function PlannerShell({ reference, presets }: PlannerShellProps) {
           {/* Joveo logo */}
           <img src="/Joveo-Logo.png" alt="Joveo" width={28} height={28} className="flex-shrink-0" />
           <div>
-            <h1 className="text-base font-bold tracking-tight text-[var(--text-primary)]">
-              Joveo — Build Submarine Media Planner
+            <h1 className="text-base font-normal tracking-tight text-[var(--text-primary)] whitespace-nowrap">
+              Joveo - BUILD<span className="font-bold">SUBMARINES</span>
             </h1>
             <p className="text-xs text-[var(--text-muted)] opacity-70 mt-0.5">
               Powered by Joveo planning intelligence
