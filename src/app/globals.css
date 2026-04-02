@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
-/* ── Braun-inspired design tokens ─────────────────────────────────────────── */
+/* ── Design system tokens ──────────────────────────────────────────────────── */
 :root {
-  --bg: #f5f5f3;
-  --surface: #ffffff;
-  --surface-2: #f0f0ee;
-  --border: #e2e2df;
-  --border-strong: #c8c8c5;
-  --text-primary: #1a1a18;
-  --text-secondary: #6b6b67;
-  --text-muted: #9b9b97;
-  --accent: #1a1a18;
-  --accent-hover: #3a3a38;
-  --green: #2d6a4f;
-  --green-bg: #e8f5ee;
-  --amber: #92400e;
-  --amber-bg: #fef3c7;
-  --red: #991b1b;
-  --red-bg: #fee2e2;
-  --blue: #1e3a5f;
-  --blue-bg: #dbeafe;
+  --bg: #EFF3F8;
+  --surface: #FFFFFF;
+  --surface-2: #F7FAFC;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E0;
+  --text-primary: #1A202C;
+  --text-secondary: #3D4759;
+  --text-muted: #718096;
+  --accent: #303F9F;
+  --accent-hover: #283593;
+  --green: #388E3C;
+  --green-bg: #E8F5E9;
+  --amber: #F57C00;
+  --amber-bg: #FFF3E0;
+  --red: #D32F2F;
+  --red-bg: #FFEBEE;
+  --blue: #1976D2;
+  --blue-bg: #E3F2FD;
 }
 
 @theme inline {
